@@ -23,6 +23,12 @@ An unofficial Home Assistant custom integration for observing and narrowly contr
 
 Hardware and firmware versions are attached to Home Assistant device-registry entries. Under **Settings → Devices & services → SeltronHome Clausius → Configure**, local options can change the cloud polling interval and channel display labels without changing stable channel codes or unique IDs. Available intervals are 30 seconds and 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, or 60 minutes; the default is 5 minutes.
 
+### Verbindungsstatus: verbunden, getrennt oder unbekannt
+
+Der Gateway-Sensor zeigt die von Seltron gemeldete Verbindung des Gateways zur Cloud, nicht nur die Erreichbarkeit der API durch Home Assistant. `connectionState: true` bedeutet verbunden, `false` bedeutet getrennt. Fehlende, `null`- oder anders typisierte Werte ergeben **unbekannt**, nicht getrennt. Für den Regler gilt dieselbe Unterscheidung anhand von `isActive`. Fehlgeschlagene Cloud-Abfragen führen weiterhin zu **nicht verfügbar**. Ohne ausdrücklich bestätigte Gateway- und Reglerverbindung bleiben Schreibbefehle gesperrt.
+
+Die Integration glättet echte `false`-Meldungen nicht und hält einen alten Online-Status nicht künstlich fest. Bei wiederholtem Wechsel nach dem Update bitte zeitgleich die Clausius-App und die Gateway-Verbindung prüfen. Eine erfolgreiche API-Abfrage oder angezeigte Temperatur kann auch aus gespeicherten Cloud-Daten stammen und beweist keine aktive Gateway-Verbindung. Für die weitere Eingrenzung genügen zunächst Uhrzeiten, die genaue HA-Anzeige (getrennt/unbekannt/nicht verfügbar), das Abfrageintervall und die gleichzeitige App-Anzeige; keine Zugangsdaten, IDs oder rohen Cloud-Antworten veröffentlichen.
+
 ## Safety boundary
 
 - Routine polling uses HTTP `GET` only.

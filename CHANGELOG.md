@@ -2,6 +2,17 @@
 
 All notable user-visible changes are documented here.
 
+## [0.4.4] - 2026-10-16
+
+### Fixed
+
+- Fehlende, `null`- oder unerwartet typisierte Gateway-/Regler-Verbindungswerte werden als **unbekannt** statt fälschlich als **getrennt** angezeigt. Explizite `true`-/`false`-Meldungen bleiben unverändert; echte Verbindungsabbrüche werden nicht ausgeblendet.
+- Regressionstests sichern Statuswechsel, die Weitergabe an HA-Binärsensoren und die Sperre aller Schreibpfade bei nicht bestätigter Verbindung ab.
+
+### Hinweise
+
+- Der am 2026-10-16 geprüfte öffentliche Seltron-Webclient verwendet weiterhin das boolesche Gateway-Feld `connectionState`. Das Android-Update allein belegt keine Änderung dieses API-Felds. Die Ursache der konkret gemeldeten periodischen Wechsel wurde ohne Live-Daten nicht nachgewiesen; diese Version korrigiert den reproduzierten Auswertungsfehler, nicht eine bestätigte Cloud-/Gateway-Störung.
+
 ## [0.4.3] - 2026-10-04
 
 ### Fixed

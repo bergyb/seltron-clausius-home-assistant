@@ -53,7 +53,7 @@ class ConnectivitySensor(SeltronEntity, BinarySensorEntity):
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{kind}_connection"
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         status = self.coordinator.data.status
         return status.gateway.connected if self._kind == "gateway" else status.controller.connected
 

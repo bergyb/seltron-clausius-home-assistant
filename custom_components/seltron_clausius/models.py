@@ -69,7 +69,7 @@ class DeviceStatus:
     model: str
     hardware_version: str | None
     firmware_version: str | None
-    connected: bool
+    connected: bool | None
 
 
 @dataclass(frozen=True)
@@ -86,12 +86,14 @@ class InstallationStatus:
 def _device_status(raw: dict[str, Any], *, connected_field: str) -> DeviceStatus:
     hardware = raw.get("hardwareVersion")
     firmware = raw.get("softwareVersion")
+    connected = raw.get(connected_field)
     return DeviceStatus(
         manufacturer=str(raw.get("manufacturer") or "SELTRON"),
         model=str(raw.get("model") or "unknown"),
         hardware_version=hardware if isinstance(hardware, str) and hardware else None,
         firmware_version=firmware if isinstance(firmware, str) and firmware else None,
-        connected=raw.get(connected_field) is True,
+        # Missing/malformed cloud status is unknown, not an explicit disconnect.
+        connected=connected if isinstance(connected, bool) else None,
     )
 
 

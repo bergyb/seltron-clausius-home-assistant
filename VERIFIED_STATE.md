@@ -1,8 +1,24 @@
 # VERIFIED_STATE
 
-Stand der aktuellen Prüfung: 2026-10-04
+Stand der aktuellen Prüfung: 2026-10-16
 
-## Aktuelle Verifikation: automatische Authentifizierungswiederherstellung
+## Aktuelle Verifikation: Verbindungsstatus (Releasevorbereitung 0.4.4)
+
+- Geprüft wurde der lokale Arbeitsbaum auf `main`, Basis `b3c4db7` (0.4.3). Nach Fetch waren HEAD und `origin/main` identisch (`0/0`). Dieser Abschnitt beschreibt den Stand vor dem neuen Release-Commit, nicht dessen spätere CI-Ergebnisse.
+- Reproduziert: fehlendes, `null`- oder nicht-boolsches `connectionState`/`isActive` wurde als `False` normalisiert. Neue Regressionstests vor der Korrektur: 17 fehlgeschlagen, 4 bestanden; danach 21 bestanden.
+- Korrektur: `DeviceStatus.connected` und der Connectivity-Binärsensor erlauben `None`. Ausschließlich echte boolesche Werte werden als verbunden/getrennt dargestellt. Keine neuen API-Felder, Endpoints, Entitäten oder Schreibrechte; kein Festhalten alter Online-Werte und kein Ausblenden echter `false`-Meldungen.
+- Alle drei Runtime-Schreibpfade bleiben bei unbekannter oder getrennter Gateway-/Reglerverbindung gesperrt (parametrisierte Preflight-Regressionen). Cloud-Abfragefehler bleiben über Coordinator-Verfügbarkeit getrennt behandelt.
+- Manifest, Projektversion, Manifesttest und Lockfile auf 0.4.4 angehoben; Lockfile-Diff ausschließlich Projektversion.
+
+Tatsächlich ausgeführt (Python 3.11.15, `env -u PYTHONPATH`): `uv sync --frozen --extra test`, vollständiges `pytest -q --cov=custom_components.seltron_clausius --cov-report=term` (**170 bestanden, 83 % Coverage**, eine bestehende HA/aiohttp-DeprecationWarning), `uvx ruff check custom_components tests`, Compileall, `uv lock --check`, `python -m pip check`, Gitleaks-Gitprüfung (8 Commits, keine Leaks) und `git diff --check`: erfolgreich.
+
+Öffentliche Recherche am 2026-10-16:
+
+- [Google Play, eu.seltron.clausius](https://play.google.com/store/apps/details?id=eu.seltron.clausius&hl=en): Update vom 2026-10-15, Hinweise zu PLUS-Funktionen. Daraus folgt keine bestätigte Änderung des Gateway-Statusfelds.
+- [Offizieller Webclient](https://clausius.seltronhome.com/), öffentliches Bundle `2432.f554760696ed6b1d.js`: explizite Vergleiche von Gateway-`connectionState` mit `true` und `false`; Bundle `7144.37baa6de8c93c6f4.js`, `isDeviceOnline`: ebenfalls strikter Vergleich mit `true`. Keine Umbenennung/Typänderung dieses Felds in diesen Fundstellen erkennbar.
+- Kein Zugriff auf Benutzer-HA, keine privaten Cloud-Antworten und keine Live-Geräteoperationen. Periodisches Flattern am konkreten Gateway bleibt unbestätigt; die Korrektur behebt den belegten Parserfehler, nicht nachweislich jede Ursache solcher Wechsel.
+
+## Historische Verifikation 2026-10-04: automatische Authentifizierungswiederherstellung
 
 - Geprüft wurde der lokale, noch nicht committete Arbeitsbaum auf `main`, Basis-HEAD `0bb7c16e0822b233c26918cad71bfef799e49995`.
 - Vor der Veröffentlichung wurde `origin` einschließlich Tags erneut abgerufen; Basis-HEAD und `origin/main` waren identisch (`0/0`).

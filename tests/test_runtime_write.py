@@ -247,6 +247,33 @@ async def test_runtime_does_not_claim_success_when_readback_differs() -> None:
     assert api.refresh_calls == 4
 
 
+@pytest.mark.parametrize("kind,field", [("gateway", "connectionState"), ("controller", "isActive")])
+@pytest.mark.parametrize("value", [None, False, "true", 1])
+@pytest.mark.parametrize("operation", ["mode", "setpoint", "user_function"])
+async def test_runtime_blocks_all_writes_without_explicit_connectivity(
+    kind, field, value, operation
+):
+    api = WriteApi(make_installation())
+    runtime = make_runtime(api)
+    await runtime.async_update()
+    device = dict(getattr(api.installation, kind))
+    device[field] = value
+    api.installation = replace(api.installation, **{kind: device})
+
+    with pytest.raises(WriteUnavailableError, match=kind):
+        if operation == "mode":
+            await runtime.async_set_operation_mode("HC1", "Day")
+        elif operation == "setpoint":
+            await runtime.async_set_setpoint("HC1", "day", 21.5)
+        else:
+            await runtime.async_set_user_function("HC1", "Off")
+
+    assert api.mode_calls == []
+    assert api.temperature_calls == []
+    assert api.user_function_calls == []
+    assert api.refresh_calls == 1
+
+
 @pytest.mark.asyncio
 async def test_runtime_retries_until_delayed_mode_readback_is_confirmed() -> None:
     api = DelayedModeWriteApi(make_installation())
