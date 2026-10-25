@@ -1,4 +1,4 @@
-# SeltronHome Clausius for Home Assistant
+# GWD2 SeltronHome Clausius for Home Assistant
 
 [![Tests](https://github.com/subi900/seltron-clausius-home-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/subi900/seltron-clausius-home-assistant/actions/workflows/tests.yml)
 [![HACS validation](https://github.com/subi900/seltron-clausius-home-assistant/actions/workflows/validate.yml/badge.svg)](https://github.com/subi900/seltron-clausius-home-assistant/actions/workflows/validate.yml)
