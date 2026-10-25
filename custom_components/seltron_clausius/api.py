@@ -110,7 +110,7 @@ class UnsafePathError(ValueError):
 
 @dataclass(frozen=True)
 class Installation:
-    """Discovered GWD3/WDC installation; private identifiers never appear in repr."""
+    """Discovered GWD/WDC installation; private identifiers never appear in repr."""
 
     subscription_id: str = field(repr=False)
     resource_group_id: str = field(repr=False)
@@ -119,6 +119,7 @@ class Installation:
     gateway: dict[str, Any] = field(repr=False)
     controller: dict[str, Any] = field(repr=False)
     schema: dict[str, Any] = field(default_factory=dict, repr=False)
+    gateway_type: str = field(default="GWD2", repr=False)
 
 
 def _collection(value: Any, key: str | None = None) -> list[dict[str, Any]]:
@@ -248,7 +249,7 @@ class SeltronApi:
             self._raise_for_status(response)
 
     async def async_discover_installations(self) -> list[Installation]:
-        """Discover GWD3 gateways and WDC controllers using GET requests only."""
+        """Discover GWD2/GWD3 gateways and WDC controllers using GET requests only."""
         subscriptions = _collection(
             await self.async_get("/api/subscriptions?$expand=Tags")
         )
@@ -256,7 +257,7 @@ class SeltronApi:
         for subscription in subscriptions:
             subscription_id = _id(subscription)
             sid = quote(subscription_id, safe="")
-            subscription_detail = await self.async_get(f"/api/subscriptions/{sid}")
+            subscription_detail = await self.async_get(f"/api/subscriptions/{sid}?$expand=Tags")
             for group_stub in _collection(subscription_detail, "resourceGroups"):
                 resource_group_id = _id(group_stub)
                 rgid = quote(resource_group_id, safe="")
@@ -270,11 +271,13 @@ class SeltronApi:
                         or _field(resource, "model")
                         or ""
                     ).upper()
-                    if "GWD2" not in resource_type:
+                    # Support both GWD2 and GWD3
+                    if "GWD2" not in resource_type and "GWD3" not in resource_type:
                         continue
+                    gateway_type = "GWD2" if "GWD2" in resource_type else "GWD3"
                     gateway_id = _id(resource)
                     gid = quote(gateway_id, safe="")
-                    gateway = await self.async_get(f"{root}/GWD2/{gid}?$expand=Tags")
+                    gateway = await self.async_get(f"{root}/{gateway_type}/{gid}?$expand=Tags")
                     controllers = _collection(gateway, "connectedControllers")
                     for controller_stub in controllers:
                         controller_type = str(
@@ -300,6 +303,7 @@ class SeltronApi:
                                 gateway=gateway,
                                 controller=controller,
                                 schema=schema,
+                                gateway_type=gateway_type,
                             )
                         )
         return installations
@@ -335,7 +339,8 @@ class SeltronApi:
         gid = quote(installation.gateway_id, safe="")
         cid = quote(installation.controller_id, safe="")
         root = f"/api/subscriptions/{sid}/resourceGroups/{rgid}"
-        gateway = await self.async_get(f"{root}/GWD2/{gid}?$expand=Tags")
+        gateway_type = installation.gateway_type or "GWD2"
+        gateway = await self.async_get(f"{root}/{gateway_type}/{gid}?$expand=Tags")
         controller = await self.async_get(f"{root}/WDC/{cid}?$expand=Tags")
         return Installation(
             subscription_id=installation.subscription_id,
@@ -345,4 +350,5 @@ class SeltronApi:
             gateway=gateway,
             controller=controller,
             schema=installation.schema,
+            gateway_type=gateway_type,
         )
