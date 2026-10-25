@@ -270,11 +270,11 @@ class SeltronApi:
                         or _field(resource, "model")
                         or ""
                     ).upper()
-                    if "GWD3" not in resource_type:
+                    if "GWD2" not in resource_type:
                         continue
                     gateway_id = _id(resource)
                     gid = quote(gateway_id, safe="")
-                    gateway = await self.async_get(f"{root}/GWD3/{gid}?$expand=Tags")
+                    gateway = await self.async_get(f"{root}/GWD2/{gid}?$expand=Tags")
                     controllers = _collection(gateway, "connectedControllers")
                     for controller_stub in controllers:
                         controller_type = str(
@@ -335,7 +335,7 @@ class SeltronApi:
         gid = quote(installation.gateway_id, safe="")
         cid = quote(installation.controller_id, safe="")
         root = f"/api/subscriptions/{sid}/resourceGroups/{rgid}"
-        gateway = await self.async_get(f"{root}/GWD3/{gid}?$expand=Tags")
+        gateway = await self.async_get(f"{root}/GWD2/{gid}?$expand=Tags")
         controller = await self.async_get(f"{root}/WDC/{cid}?$expand=Tags")
         return Installation(
             subscription_id=installation.subscription_id,
