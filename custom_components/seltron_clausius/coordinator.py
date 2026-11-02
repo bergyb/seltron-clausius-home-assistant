@@ -32,7 +32,6 @@ class SeltronCoordinator(DataUpdateCoordinator[RuntimeData]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
         self.user_function_until: dict[tuple[str, str], datetime] = {}
-        self.runtime._preferred_controller_id = entry.data.get("controller_id")
 
         async def persist_tokens(tokens: TokenSet) -> None:
             # One ConfigEntry update persists the complete rotated token set atomically.
@@ -58,6 +57,7 @@ class SeltronCoordinator(DataUpdateCoordinator[RuntimeData]):
             if entry.data.get(CONF_EMAIL) and entry.data.get(CONF_PASSWORD)
             else None,
         )
+        self.runtime._preferred_controller_id = entry.data.get("controller_id")
         polling_interval = polling_interval_seconds(
             entry.options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
         )
