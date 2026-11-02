@@ -129,8 +129,6 @@ class SeltronRuntime:
     async def _async_refresh_installation(self, api: _Api) -> RuntimeData:
     if self._installation is None:
         installations = await api.async_discover_installations()
-        if self._installation is None:
-        installations = await api.async_discover_installations()
         if not installations:
             raise RuntimeError("No compatible Seltron installation found")
         preferred = self._preferred_controller_id
